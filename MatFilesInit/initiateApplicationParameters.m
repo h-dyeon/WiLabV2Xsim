@@ -11,9 +11,15 @@ fprintf('Application settings\n');
 % [allocationPeriod]
 % Resource allocation period in seconds. Previously it was 'averageTbeacon'.
 % TODO: add and test the possibility to have RRI=20,50 ms
-[appParams,varargin] = addNewParam([],'allocationPeriod',0.1,'Resource allocation period (s)','double',fileCfg,varargin{1});
-if(isempty(find(0.1:0.1:1==appParams.allocationPeriod, 1)))
-    error('Error: "appParams.allocationPeriod" cannot be <= 0 or different from 0.1:0.1:1');
+% before =======hdy
+% [appParams,varargin] = addNewParam([],'allocationPeriod',0.1,'Resource allocation period (s)','double',fileCfg,varargin{1});
+% if(isempty(find(0.1:0.1:1==appParams.allocationPeriod, 1)))
+%     error('Error: "appParams.allocationPeriod" cannot be <= 0 or different from 0.1:0.1:1');
+% end
+
+% after ====hdy
+if (appParams.allocationPeriod < 0)
+    error('Error: "appParams.allocationPeriod" cannot be <= 0');
 end
 
 % [variabilityGenerationInterval]
