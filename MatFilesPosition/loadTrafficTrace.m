@@ -76,6 +76,7 @@ xV = dataIn(:,3);
 yV = dataIn(:,4);
 if length(dataIn(1,:))>4
     vV = dataIn(:,5);
+    angle=dataIn(:,6); %hdy
 end
 
 % The output matrix is initialized with the correct size
@@ -94,6 +95,7 @@ for idToCheck = min(dataIn(:,2)):max(dataIn(:,2))
         yCheck = yV(id==idToCheck);
         if length(dataIn(1,:))>4
             vCheck = vV(id==idToCheck); 
+            angleCheck=angle(id==idToCheck); %hdy
         end
         
         % Vectors related to possible events where a vehicle exits the
@@ -110,6 +112,7 @@ for idToCheck = min(dataIn(:,2)):max(dataIn(:,2))
             dataAll(startIndex:endIndex,4) = yCheck(indexesStart(i):indexesEnd(i));
             if length(dataIn(1,:))>4
                 dataAll(startIndex:endIndex,5) = vCheck(indexesStart(i):indexesEnd(i));
+                dataAll(startIndex:endIndex,6) = angleCheck(indexesStart(i):indexesEnd(i)); %hdy
             end
             startIndex = endIndex+1;
             % The ID of the next vehicle is updated

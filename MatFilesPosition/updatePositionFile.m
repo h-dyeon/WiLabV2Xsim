@@ -1,4 +1,7 @@
-function [XvehicleReal,YvehicleReal,IDvehicle,indexNewVehicles,indexOldVehicles,indexOldVehiclesToOld,IDvehicleExit,speedNow] = updatePositionFile(time,dataTrace,oldIDvehicle,XvehiclePrevious,YvehiclePrevious,timePrevious,simValues,outParams)
+function [XvehicleReal,YvehicleReal,IDvehicle,speedNow,angleNow,indexNewVehicles,indexOldVehicles,indexOldVehiclesToOld,IDvehicleExit] = updatePositionFile(time,dataTrace,oldIDvehicle,XvehiclePrevious,YvehiclePrevious,timePrevious,simValues,outParams)
+% function [XvehicleReal,YvehicleReal,IDvehicle,indexNewVehicles,indexOldVehicles,indexOldVehiclesToOld,IDvehicleExit,speedNow,angleNow] = updatePositionFile(time,dataTrace,oldIDvehicle,XvehiclePrevious,YvehiclePrevious,timePrevious,simValues,outParams)
+% hdy output parameter, add "angleNow" and change order of outputparams
+
 % Update position of vehicles from file
 
 %XvehiclePrevious = XvehicleReal;
@@ -11,6 +14,7 @@ XvehicleReal = dataTrace(fileIndex,3);
 YvehicleReal = dataTrace(fileIndex,4);
 if length(dataTrace(1,:))>4
     speedNow = dataTrace(fileIndex,5);
+    angleNow = dataTrace(fileIndex,6); %hdy
 end
 
 % Sort IDvehicle, XvehicleReal and YvehicleReal by IDvehicle
@@ -19,6 +23,7 @@ XvehicleReal = XvehicleReal(indexOrder);
 YvehicleReal = YvehicleReal(indexOrder);
 if length(dataTrace(1,:))>4
     speedNow = speedNow(indexOrder);
+    angleNow = angleNow(indexOrder); %hdy
 end
 
 [~,indexNewVehicles] = setdiff(IDvehicle,oldIDvehicle,'stable');

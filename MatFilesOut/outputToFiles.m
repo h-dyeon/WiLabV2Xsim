@@ -491,7 +491,10 @@ if outputValues.AvgNvehiclesCV2X>0
     %avTx = sum(sum(outputValues.NtxBeaconsCV2X(:,:,1))) / ...
     %    (outputValues.AvgNvehiclesCV2X * outputValues.NneighborsCV2X(1) * simParams.simulationTime);
     % Since v. 5.4.15
-    avTx = outputValues.cv2xTransmissionsFirst/(outputValues.AvgNvehiclesCV2X * simParams.simulationTime);
+    durationHdy=simParams.simulationTime - simParams.startSimulationTime; %hdy
+    avTx = outputValues.cv2xTransmissionsFirst/(outputValues.AvgNvehiclesCV2X * durationHdy); %hdy
+    %avTx = outputValues.cv2xTransmissionsFirst/(outputValues.AvgNvehiclesCV2X * simParams.simulationTime); %hdy
+    
     fprintf(fileMainID,'%.2f\t',avTx);
     % Average retransmissions per packet
     fprintf(fileMainID,'%.2f\t',outputValues.cv2xTransmissionsIncHarq/outputValues.cv2xTransmissionsFirst);
@@ -574,8 +577,10 @@ if outputValues.AvgNvehicles11p>0
     end
     fprintf(fileMainID,'\t');
     % Average tx per node per second
+    durationHdy=simParams.simulationTime - simParams.startSimulationTime; %hdy
     avTx = sum(sum(outputValues.NtxBeacons11p(:,:,1))) / ...
-        (outputValues.AvgNvehicles11p * outputValues.Nneighbors11p(1) * simParams.simulationTime);
+        (outputValues.AvgNvehicles11p * outputValues.Nneighbors11p(1) * durationHdy); %hdy
+%      (outputValues.AvgNvehicles11p * outputValues.Nneighbors11p(1) * simParams.simulationTime); %hdy before
     fprintf(fileMainID,'%.2f\t',avTx);    
     if simParams.cbrActive
         if length(stationManagement.cbr11pValues(1,:))<11

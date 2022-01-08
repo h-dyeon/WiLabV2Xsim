@@ -6,10 +6,10 @@ function [simValues,outputValues,appParams,simParams,phyParams,sinrManagement,ou
     sinrManagement,timeManagement,positionManagement,stationManagement] = mainInit(appParams,simParams,phyParams,outParams,simValues,outputValues,positionManagement);
 
 % The simulation starts at time '0'
-timeManagement.timeNow = 0;
+timeManagement.timeNow = simParams.startSimulationTime; %hdy before:0, after : simParams.startSimulationTime
 
 % The variable 'timeNextPrint' is used only for printing purposes
-timeNextPrint = 0;
+timeNextPrint = simParams.startSimulationTime;  %hdy before:0, after : simParams.startSimulationTime
 
 % The variable minNextSuperframe is used in the case of coexistence
 minNextSuperframe = min(timeManagement.coex_timeNextSuperframe);

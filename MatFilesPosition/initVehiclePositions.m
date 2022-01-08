@@ -192,7 +192,7 @@ else
     [simValues,simParams] = interpolateTrace(dataLoaded,simParams,appParams.allocationPeriod);
     
     % Round time column (representation format)
-    simValues.dataTrace(:,1) = round(simValues.dataTrace(:,1)*100)/100;
+    simValues.dataTrace(:,1) = round(simValues.dataTrace(:,1)*1000)/1000; %hdy before 100, after 1000
     
     % Find trace details (Xmin,Xmax,Ymin,Ymax,maxID)
     positionManagement.Xmin = min(simValues.dataTrace(:,3));     % Min X coordinate Trace
@@ -202,8 +202,8 @@ else
     simValues.maxID = max(simValues.dataTrace(:,2));    % Maximum vehicle's ID
     
     % Call function to read vehicle positions from file at time zero
-    [positionManagement.XvehicleReal, positionManagement.YvehicleReal, simValues.IDvehicle, simValues.v] = updatePositionFile(0,simValues.dataTrace,[],-1,-1,-1,simValues,[]);
-    
+    %hdy change from time"zero" to simParams.startSimulationTime
+    [positionManagement.XvehicleReal, positionManagement.YvehicleReal, simValues.IDvehicle, simValues.v,simValues.angle] = updatePositionFile(simParams.startSimulationTime,simValues.dataTrace,[],-1,-1,-1,simValues,[]);
 end
 
 % Throw an error if there are no vehicles in the scenario

@@ -54,6 +54,16 @@ end
 % Additional parameters (currently only RSUs with DENM)
 [simParams,appParams,phyParams,varargin] = initiateSpecificCasesParameters(simParams,appParams,phyParams,fileCfg,varargin{1});
 
+
+% hdy additional parameter
+% [startSimulationTime]
+% start time of the simulation in seconds, (startSimulationTime ~startSimulationTime+simulationTime) 
+[simParams,varargin] = addNewParam(simParams,'startSimulationTime',0,'start time of the simulation (s)','double',fileCfg,varargin{1});
+if simParams.simulationTime<0
+    error('Error: "simParams.startSimulationTime" cannot be < 0');
+end
+
+
 if ~isempty(varargin{1})
     sError = sprintf('Error in the command line: ');
     for i=1:length(varargin{1})/2

@@ -7,7 +7,12 @@ if simParams.typeOfScenario~=2 % Not traffic trace
     [indexNewVehicles,indexOldVehicles,indexOldVehiclesToOld,stationManagement.activeIDsExit,positionManagement] = updatePosition(timeManagement.timeNow,stationManagement.activeIDs,simValues.v,simValues.direction,simParams.positionTimeResolution,simValues.Xmax,positionManagement,appParams,simValues,outParams);
 else
     % Store IDs of vehicles at the previous beacon period and update positions
-    [positionManagement.XvehicleReal,positionManagement.YvehicleReal,stationManagement.activeIDs,indexNewVehicles,indexOldVehicles,indexOldVehiclesToOld,stationManagement.activeIDsExit,simValues.v] = updatePositionFile(round(timeManagement.timeNextPosUpdate*100)/100,simValues.dataTrace,stationManagement.activeIDs,positionManagement.XvehicleReal,positionManagement.YvehicleReal,round(timeManagement.timeNextPosUpdate*100)/100-simParams.positionTimeResolution,simValues,outParams);
+    
+    %hdy
+    % before : [positionManagement.XvehicleReal,positionManagement.YvehicleReal,stationManagement.activeIDs,indexNewVehicles,indexOldVehicles,indexOldVehiclesToOld,stationManagement.activeIDsExit,simValues.v] = updatePositionFile(round(timeManagement.timeNextPosUpdate*100)/100,simValues.dataTrace,stationManagement.activeIDs,positionManagement.XvehicleReal,positionManagement.YvehicleReal,round(timeManagement.timeNextPosUpdate*100)/100-simParams.positionTimeResolution,simValues,outParams);
+    % after
+    [positionManagement.XvehicleReal,positionManagement.YvehicleReal,stationManagement.activeIDs, simValues.v,simValues.angle,indexNewVehicles,indexOldVehicles,indexOldVehiclesToOld,stationManagement.activeIDsExit] = updatePositionFile(round(timeManagement.timeNextPosUpdate*100)/100,simValues.dataTrace,stationManagement.activeIDs,positionManagement.XvehicleReal,positionManagement.YvehicleReal,round(timeManagement.timeNextPosUpdate*100)/100-simParams.positionTimeResolution,simValues,outParams); %hdy
+    
     %% ONLY LTE
     if sum(stationManagement.vehicleState(stationManagement.activeIDs)==100)>0
     %if simParams.technology ~= 2 % not only 11p

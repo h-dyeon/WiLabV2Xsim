@@ -8,7 +8,7 @@ stationManagement.activeIDs = simValues.IDvehicle;
 simValues = rmfield(simValues,'IDvehicle');
 
 % The simulation starts at time '0'
-timeManagement.timeNow = 0;
+timeManagement.timeNow = simParams.startSimulationTime; %hdy
 
 % State of each node
 % Discriminates C-V2X nodes from 11p nodes
@@ -421,7 +421,7 @@ if sum(stationManagement.vehicleState(stationManagement.activeIDs)==100)>0
         %[stationManagement.BRid(stationManagement.activeIDs,1),~] = BRreassignmentRandom(stationManagement.activeIDs,simParams,timeManagement,sinrManagement,stationManagement,phyParams,appParams);
         for j=1:phyParams.cv2xNumberOfReplicasMax
             % From v5.4.16, when HARQ is active, n random
-            % resources are selected, one per each replica 
+            % resources are selected, one per each replica  ==========hdy
             [stationManagement.BRid(stationManagement.activeIDs,j),~] = BRreassignmentRandom(simParams.T1autonomousModeTTIs,simParams.T2autonomousModeTTIs,stationManagement.activeIDs,simParams,timeManagement,sinrManagement,stationManagement,phyParams,appParams);
         end      
         % Must be ordered with respect to the packet generation instant
@@ -490,7 +490,9 @@ if simParams.cbrActive
         stationManagement.channelSensedBusyMatrix11p = zeros(ceil(simParams.cbrSensingInterval/appParams.allocationPeriod),simValues.maxID);        
     end
     
-    nCbrIntervals = ceil(simParams.simulationTime/simParams.cbrSensingInterval);
+    
+    durationHdy=simParams.simulationTime - simParams.startSimulationTime; %hdy
+    nCbrIntervals = ceil(durationHdy/simParams.cbrSensingInterval); %hdy
     stationManagement.cbr11pValues = -1 * ones(simValues.maxID,nCbrIntervals); 
     stationManagement.cbrCV2Xvalues = -1 * ones(simValues.maxID,nCbrIntervals);     
     stationManagement.coex_cbrLteOnlyValues = -1 * ones(simValues.maxID,nCbrIntervals);     
