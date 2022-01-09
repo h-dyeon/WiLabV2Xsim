@@ -202,8 +202,7 @@ else
     simValues.maxID = max(simValues.dataTrace(:,2));    % Maximum vehicle's ID
     
     % Call function to read vehicle positions from file at time zero
-    %hdy change from time"zero" to simParams.startSimulationTime
-    [positionManagement.XvehicleReal, positionManagement.YvehicleReal, simValues.IDvehicle, simValues.v,simValues.angle] = updatePositionFile(simParams.startSimulationTime,simValues.dataTrace,[],-1,-1,-1,simValues,[]);
+    [positionManagement.XvehicleReal, positionManagement.YvehicleReal, simValues.IDvehicle, simValues.v,simValues.angle] = updatePositionFile(0,simValues.dataTrace,[],-1,-1,-1,simValues,[]);
 end
 
 % Throw an error if there are no vehicles in the scenario

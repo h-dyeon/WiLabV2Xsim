@@ -31,6 +31,18 @@ if simParams.simulationTime<deltaTorig
     error('Error: simulationTime must be equal or larger than the time resolution of the trace file');
 end
 
+
+% change simParams.startSimulationTime to 0
+minTime=min(dataIn(:,1)); 
+if simParams.startSimulationTime~=-1 && minTime > simParams.startSimulationTime
+    error('Error: startSimulationTime must be equal or larger than start time of the trace file');
+end
+if simParams.startSimulationTime~=-1 && minTime <= simParams.startSimulationTime
+    dataIn = dataIn(dataIn(:,1)>=simParams.startSimulationTime,:);
+    dataIn(:,1)=dataIn(:,1)-simParams.startSimulationTime; %change startTime to Zero
+end
+
+
 % Find maximum time in trace file
 maxTime = max(dataIn(:,1)); 
 
