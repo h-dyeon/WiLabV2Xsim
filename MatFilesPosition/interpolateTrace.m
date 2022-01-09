@@ -16,11 +16,12 @@ function [simValues,simParams] = interpolateTrace(dataOrig,simParams,Tbeacon)
 % the input interal, and is adjusted otherwise; if it is not smaller than the 
 % interval of the input time, then the input file is returned directly
 
-if simParams.positionTimeResolution<Tbeacon
-    fprintf('The selected time resolution is smaller than the beacon period.\n');
-    simParams.positionTimeResolution = Tbeacon;
-    fprintf('For this reason, positionTimeResolution is set to %fs\n',simParams.positionTimeResolution);
-end
+%hdy : why positionTimeResolution cannot smaller than Tbeacon ?
+% if simParams.positionTimeResolution<Tbeacon
+%     fprintf('The selected time resolution is smaller than the beacon period.\n');
+%     simParams.positionTimeResolution = Tbeacon;
+%     fprintf('For this reason, positionTimeResolution is set to %fs\n',simParams.positionTimeResolution);
+% end
 
 % The input time interval is derived from the input file
 deltaTorig = max(dataOrig(2:end,1)-dataOrig(1:end-1,1));
