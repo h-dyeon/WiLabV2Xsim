@@ -5,11 +5,14 @@ clc          % Clear the command window
 %LTEV2Vsim('help');
 
 % Configuration file
-configFile = 'Highway3GPP.cfg';
+configFile = 'HDY_Highway3GPP.cfg';
 %configFile = 'BolognaA.cfg';
 %configFile = 'Highway3GPP.cfg';
 
-% Simulation time (s)
+
+% startSimulationTime (s)
+ST=300.001;
+% Simulation time (s) (duration of the simulation)
 T = 10;
 
 % Beacon size (bytes)
@@ -19,5 +22,5 @@ B = 300;
 % Autonomous allocation algorithm defined in 3GPP standard
 
 WiLabV2Xsim(configFile,'simulationTime',T,'BRAlgorithm',18,'Raw',150,...
-    'beaconSizeBytes',B);
+    'beaconSizeBytes',B,'startSimulationTime',ST);
 

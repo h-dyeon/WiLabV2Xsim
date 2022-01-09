@@ -238,6 +238,12 @@ if outParams.printHiddenNodeProb
     %outputValues.hiddenNodeProbEvents = zeros(floor(phyParams.RawMax)+1,1);
 end
 
+
+
+save('hello.mat');
+load('hello.mat');
+
+
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %% Start Simulation
 [simValues,outputValues,appParams,simParams,phyParams,sinrManagement,outParams,stationManagement] = mainV2X(appParams,simParams,phyParams,outParams,simValues,outputValues,positionManagement);    
