@@ -55,12 +55,20 @@ end
 [simParams,appParams,phyParams,varargin] = initiateSpecificCasesParameters(simParams,appParams,phyParams,fileCfg,varargin{1});
 
 
-% hdy additional parameter
+%%%%%%%%%%%%%%%%%% hdy additional parameter %%%%%%%%%%%%%%%%%
 % [startSimulationTime]
 % start time of the simulation in seconds, (startSimulationTime ~startSimulationTime+simulationTime) 
 [simParams,varargin] = addNewParam(simParams,'startSimulationTime',0,'start time of the simulation (s)','double',fileCfg,varargin{1});
 if simParams.simulationTime<0
     error('Error: "simParams.startSimulationTime" cannot be < 0');
+end
+
+% [enableP2R]
+% Whether to enable the P2R function or not
+% true: enable, false: not enable
+[simParams,varargin] = addNewParam(simParams,'enableP2R',false,'whether to enable the P2R function or not','bool',fileCfg,varargin{1});
+if simParams.enableP2R<0
+    error('Error: "phyParams.ifAdjacent" must be equal to false or true');
 end
 
 
