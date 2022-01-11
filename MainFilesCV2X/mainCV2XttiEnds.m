@@ -111,7 +111,7 @@ if simParams.BRAlgorithm==18
     
     % BRs reassignment (3GPP MODE 4)     
     [timeManagement,stationManagement,sinrManagement,Nreassign] = ...
-        BRreassignment3GPPautonomous(timeManagement,stationManagement,positionManagement,sinrManagement,simParams,phyParams,appParams,outParams);
+        BRreassignment3GPPautonomous(timeManagement,stationManagement,positionManagement,sinrManagement,simParams,phyParams,appParams,outParams,simValues); % hdy add param : simValues
         % Code for possible DEBUG
         % figure(400)
         % plot(timeManagement.timeNow*ones(1,length(stationManagement.BRid)),stationManagement.BRid,'*');

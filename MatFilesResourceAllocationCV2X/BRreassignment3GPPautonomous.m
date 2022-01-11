@@ -1,4 +1,4 @@
-function [timeManagement,stationManagement,sinrManagement,Nreassign] = BRreassignment3GPPautonomous(timeManagement,stationManagement,positionManagement,sinrManagement,simParams,phyParams,appParams,outParams)
+function [timeManagement,stationManagement,sinrManagement,Nreassign] = BRreassignment3GPPautonomous(timeManagement,stationManagement,positionManagement,sinrManagement,simParams,phyParams,appParams,outParams,simValues) % hdy add param : simValues
 % Sensing-based autonomous resource reselection algorithm (3GPP MODE 4)
 % as from 3GPP TS 36.321 and TS 36.213
 % Resources are allocated for a Resource Reselection Period (SPS)
@@ -181,6 +181,9 @@ Nscheduled = length(scheduledID);
 % Reset number of successfully reassigned vehicles
 Nreassign = 0;
 
+% if Nscheduled > 2
+%     a=3+4;
+
 for indexSensingV = 1:Nscheduled
 
     %if scheduledID(indexSensingV)==87
@@ -284,9 +287,62 @@ for indexSensingV = 1:Nscheduled
     % To mark unacceptable RB as occupied, their power is set to Inf
     sensingMatrixPerm = sensingMatrixPerm + (1-usableBRs) * max(phyParams.P_ERP_MHz_CV2X);
     
+    
     % Sort sensingMatrix in ascending order
     [~, bestBRPerm] = sort(sensingMatrixPerm);
+    
+    
+    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% hdy %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+ 
+    
+    %position information
+    nPos=[positionManagement.XvehicleReal(scheduledID(indexSensingV)); ...
+        positionManagement.YvehicleReal(scheduledID(indexSensingV))];
+    nSpeed=simValues.v(scheduledID(indexSensingV)); %m/s
+    nAngle=simValues.angle(scheduledID(indexSensingV));  %degree
+    piAngle=nAngle*pi/180; %radian
 
+    % config parameter
+    roadWidth=4; %meter
+    numOflane=3;  
+    gamma_=1200;%meter
+    betta_=NbeaconsT; %==NbeconsT
+    thetaMat=[cos(piAngle),sin(piAngle); -1*sin(piAngle),cos(piAngle)];
+    if(sin(piAngle)<0)
+        thetaMat=thetaMat*-1;
+    end
+
+    sf=0;
+    sc=0;
+    p2rRBid=0;
+    for i=1:Nbeacons %unit is millisecond
+        tPos=nPos + nSpeed*i*phyParams.TTI; %%%%%%%%%%%%%%%%%%%%%%%%%%%
+        tPos=thetaMat * nPos;
+
+        numOfResourceInOneLane=floor((NbeaconsF*Nbeacons)/numOflane);
+        lengthOneSegmant=gamma_/numOfResourceInOneLane;
+        tx=floor(mod(tPos(1),gamma_) /lengthOneSegmant);
+        ty=floor(mod(tPos(2),roadWidth*numOflane)/roadWidth);
+        p2rRBid=numOflane*tx+ty;
+        sf=mod(p2rRBid,betta_);
+        sc=floor(p2rRBid/betta_);
+        fprintf("currentT=%f => %f  tPos=(%f,%f), tx=%f, ty=%f, p2rRBid=%f, sf,sc=(%f,%f)\n", currentT,currentT+i, tPos(1),tPos(2),tx,ty,p2rRBid,sf,sc);
+        if (mod(currentT+i, betta_) - sf)<0.000001
+            fprintf("------------------------------------");
+            break;
+        end
+    end
+
+    %check if the resource(sf,sc) is possible
+    a=sensingMatrixPerm < max(phyParams.P_ERP_MHz_CV2X); % find possible resource (not INF or smaller than max_phyParams.P_ERP_MHz_CV2X)
+    a=sort(a,'descend');
+    b=bestBRPerm(a);
+    possibleBR=rpMatrix(b);
+    
+    fprintf("RBid= %f=> %f   sf,sc=(%f,%f)\n",p2rRBid,p2rRBid+1, sf,sc);
+    
+    
+    
     % Reorder bestBRid matrix
     bestBR = rpMatrix(bestBRPerm);
     
@@ -312,6 +368,40 @@ for indexSensingV = 1:Nscheduled
 
     stationManagement.BRid(scheduledID(indexSensingV),1)=BR;
     Nreassign = Nreassign + 1;
+    
+    
+    
+    
+    
+    
+%      % Sort sensingMatrix in ascending order
+%     [~, bestBRPerm] = sort(sensingMatrixPerm);   
+%
+%     % Reorder bestBRid matrix
+%     bestBR = rpMatrix(bestBRPerm);
+%     
+%     % 5G procedure mode2 which admits all resources that are not HD or
+%     % reserved with an RSRP level above threshold
+%     % L2 is removed in mode2
+%     if simParams.mode5G==1
+%         % Find number of remaining resources
+%         %
+%         %testMBest_5G is left to test the possibility to reintroduce L2 
+%         % if testMBest_5G is removed, set MBest to sum(usableBRs)
+%         MBest = ceil(nPossibleAllocations * simParams.testMBest_5G);
+%         MBest=min(MBest,sum(usableBRs));
+%     end
+%     
+%     % Keep the best M canditates
+%     bestBR = bestBR(1:MBest);
+% 
+%     % Reassign, selecting a random BR among the bestBR
+%     BRindex = randi(MBest);
+%     BR = bestBR(BRindex);
+%     printDebugReallocation(timeManagement.timeNow,scheduledID(indexSensingV),positionManagement.XvehicleReal(stationManagement.activeIDs==scheduledID(indexSensingV)),'reall',BR,outParams);
+% 
+%     stationManagement.BRid(scheduledID(indexSensingV),1)=BR;
+%     Nreassign = Nreassign + 1;
     
 
     %% From v 5.4.16
