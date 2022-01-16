@@ -109,17 +109,23 @@ if simParams.BRAlgorithm==18
     [timeManagement,stationManagement,sinrManagement] = ...
         CV2XsensingProcedure(timeManagement,stationManagement,sinrManagement,simParams,phyParams,appParams,outParams);    
     
-    % BRs reassignment (3GPP MODE 4)     
-    [timeManagement,stationManagement,sinrManagement,Nreassign] = ...
-        BRreassignment3GPPautonomous(timeManagement,stationManagement,positionManagement,sinrManagement,simParams,phyParams,appParams,outParams,simValues); % hdy add param : simValues
-        % Code for possible DEBUG
-        % figure(400)
-        % plot(timeManagement.timeNow*ones(1,length(stationManagement.BRid)),stationManagement.BRid,'*');
-        % hold on
-        % figure(500)
-        % plot(stationManagement.activeIDsCV2X,stationManagement.BRid,'*');
-        % hold on
-        
+    % hdy Position to Resource
+    if simParams.enableP2R
+        [timeManagement,stationManagement,sinrManagement,Nreassign] = ...
+            BRreassignment3GPPautonomous_P2R(timeManagement,stationManagement,positionManagement,sinrManagement,simParams,phyParams,appParams,outParams,simValues); % hdy add param : simValues
+    else  
+        % BRs reassignment (3GPP MODE 4)     
+        [timeManagement,stationManagement,sinrManagement,Nreassign] = ...
+            BRreassignment3GPPautonomous(timeManagement,stationManagement,positionManagement,sinrManagement,simParams,phyParams,appParams,outParams); 
+            % Code for possible DEBUG
+            % figure(400)
+            % plot(timeManagement.timeNow*ones(1,length(stationManagement.BRid)),stationManagement.BRid,'*');
+            % hold on
+            % figure(500)
+            % plot(stationManagement.activeIDsCV2X,stationManagement.BRid,'*');
+            % hold on
+    end  
+
 % Introduced for NOMA support from version 5.6
 elseif simParams.BRAlgorithm==101
     
