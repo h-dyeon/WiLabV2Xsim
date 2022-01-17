@@ -298,12 +298,14 @@ for indexSensingV = 1:Nscheduled
         positionManagement.YvehicleReal(scheduledID(indexSensingV))];
     nSpeed=simValues.v(scheduledID(indexSensingV)); %m/s
     nAngle=simValues.angle(scheduledID(indexSensingV));  %degree
-    piAngle=nAngle*pi/180; %radian
-
+    piAngle=mod(90-nAngle,360);
+    piAngle=(piAngle/180)*pi; %radian
+%     piAngle=0;
+    
     % config parameter
     roadWidth=4; %meter
-    numOflane=3;  
-    gamma_=700;%meter
+    numOflane=6;  
+    gamma_=900;%meter
     betta_=NbeaconsT; %==NbeconsT
     thetaMat=[cos(piAngle),sin(piAngle); -1*sin(piAngle),cos(piAngle)];
     if(sin(piAngle)<0)
@@ -315,6 +317,7 @@ for indexSensingV = 1:Nscheduled
     p2rRBid=0;
     for i=1:Nbeacons %unit is millisecond
         tPos=nPos + nSpeed*i*phyParams.TTI; %%%%%%%%%%%%%%%%%%%%%%%%%%%
+        dddd=nPos + nSpeed*i*phyParams.TTI;
         tPos=thetaMat * tPos;
 
         numOfResourceInOneLane=floor(Nbeacons/numOflane);
@@ -325,13 +328,17 @@ for indexSensingV = 1:Nscheduled
         sf=mod(p2rRBid,betta_);
         sc=floor(p2rRBid/betta_);
         
-        if p2rRBid>30
-            fprintf("\nv=%f time(%f + %f => %f)  tPos=(%f,%f), tx=%f, ty=%f, p2rRBid=%f, sf,sc=(%f,%f)",scheduledID(indexSensingV), currentT,i,currentT+i, tPos(1),tPos(2),tx,ty,p2rRBid,sf,sc);
-        end
-        
+%         fprintf("\n v(%d) t(%f+%d=%f) ang(%d) pos(%f,%f => %f,%f) txty=(%f,%f) RBid=%d sf,sc=(%f,%f)----------------------------------------", ...
+%             scheduledID(indexSensingV), timeManagement.elapsedTime_TTIs,i,timeManagement.elapsedTime_TTIs+i, ...
+%             nAngle,dddd(1), dddd(2), tPos(1),tPos(2), ...
+%             tx,ty,p2rRBid,sf,sc);
+                
         futureT = mod(timeManagement.elapsedTime_TTIs+i-1,betta_)+1; 
         if abs(futureT - (sf+1))<0.000001
-            %fprintf("\nv=%f time(%f + %f => %f)  tPos=(%f,%f), tx=%f, ty=%f, p2rRBid=%f, sf,sc=(%f,%f)",scheduledID(indexSensingV), currentT,i,currentT+i, tPos(1),tPos(2),tx,ty,p2rRBid,sf,sc);
+%             fprintf("\n v(%d)\tt(%f+%d=%f)\tang(%d)\tpos(%f,%f => %f,%f)\ttxty=(%f,%f)\tRBid=%d\tsf,sc=(%f,%f)----------------------------------------", ...
+%             scheduledID(indexSensingV), timeManagement.elapsedTime_TTIs,i,timeManagement.elapsedTime_TTIs+i, ...
+%             nAngle,dddd(1), dddd(2), tPos(1),tPos(2), ...
+%             tx,ty,p2rRBid,sf,sc);
             break;
         end
     end
@@ -348,6 +355,7 @@ for indexSensingV = 1:Nscheduled
     if ~isempty(intersect(possibleBR,[p2rRBid+1]))
         BR=p2rRBid+1; % RBid is start from 1
         stationManagement.BRid(scheduledID(indexSensingV),1)=BR;
+        %fprintf("\n---v(%d) t(%f) RBid(%f) sf,sc=(%f,%f)-----------------------\n",scheduledID(indexSensingV),timeManagement.elapsedTime_TTIs, p2rRBid,sf,sc);   
         %fprintf("\n------v=%f %f  currentT(%f) p2rRBid=%f, sf,sc=(%f,%f)\n",scheduledID(indexSensingV),timeManagement.elapsedTime_TTIs, currentT,p2rRBid,sf,sc);   
         
 %         Nreassign = Nreassign + 1;
