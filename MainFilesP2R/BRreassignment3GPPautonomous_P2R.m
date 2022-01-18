@@ -304,8 +304,8 @@ for indexSensingV = 1:Nscheduled
     
     % config parameter
     roadWidth=4; %meter
-    numOflane=6;  
-    gamma_=900;%meter
+    numOflane=NbeaconsF;  
+    gamma_=1000;%meter
     betta_=NbeaconsT; %==NbeconsT
     thetaMat=[cos(piAngle),sin(piAngle); -1*sin(piAngle),cos(piAngle)];
     if(sin(piAngle)<0)
@@ -315,7 +315,7 @@ for indexSensingV = 1:Nscheduled
     sf=0; %subframe
     sc=0; %subchannel
     p2rRBid=0;
-    for i=1:Nbeacons %unit is millisecond
+    for i=1:NbeaconsT %unit is millisecond
         tPos=nPos + nSpeed*i*phyParams.TTI; %%%%%%%%%%%%%%%%%%%%%%%%%%%
         dddd=nPos + nSpeed*i*phyParams.TTI;
         tPos=thetaMat * tPos;

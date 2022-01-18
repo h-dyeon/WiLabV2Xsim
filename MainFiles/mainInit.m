@@ -422,8 +422,12 @@ if sum(stationManagement.vehicleState(stationManagement.activeIDs)==100)>0
         for j=1:phyParams.cv2xNumberOfReplicasMax
             % From v5.4.16, when HARQ is active, n random
             % resources are selected, one per each replica 
-            [stationManagement.BRid(stationManagement.activeIDs,j),~] = BRreassignmentRandom(simParams.T1autonomousModeTTIs,simParams.T2autonomousModeTTIs,stationManagement.activeIDs,simParams,timeManagement,sinrManagement,stationManagement,phyParams,appParams);
-        end      
+            if simParams.enableP2R
+                [stationManagement.BRid(stationManagement.activeIDs,j),~] = BRreassignmentRandom_P2R(simParams.T1autonomousModeTTIs,simParams.T2autonomousModeTTIs,stationManagement.activeIDs,simParams,timeManagement,sinrManagement,stationManagement,phyParams,appParams,positionManagement,simValues);
+            else
+                [stationManagement.BRid(stationManagement.activeIDs,j),~] = BRreassignmentRandom(simParams.T1autonomousModeTTIs,simParams.T2autonomousModeTTIs,stationManagement.activeIDs,simParams,timeManagement,sinrManagement,stationManagement,phyParams,appParams);
+            end
+        end
         % Must be ordered with respect to the packet generation instant
         % (Vittorio 5.5.3)
         % subframeGen = ceil(timeManagement.timeNextPacket/phyParams.Tsf);
