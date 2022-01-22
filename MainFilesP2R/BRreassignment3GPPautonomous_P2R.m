@@ -292,56 +292,86 @@ for indexSensingV = 1:Nscheduled
     [~, bestBRPerm] = sort(sensingMatrixPerm);
     
     
-    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% hdy %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%    
-    %position information
-    nPos=[positionManagement.XvehicleReal(scheduledID(indexSensingV)); ...
-        positionManagement.YvehicleReal(scheduledID(indexSensingV))];
-    nSpeed=simValues.v(scheduledID(indexSensingV)); %m/s
-    nAngle=simValues.angle(scheduledID(indexSensingV));  %degree
-    piAngle=mod(90-nAngle,360);
-    piAngle=(piAngle/180)*pi; %radian
-%     piAngle=0;
-    
-    % config parameter
-    roadWidth=4; %meter
-    numOflane=NbeaconsF;  
-    gamma_=1000;%meter
-    betta_=NbeaconsT; %==NbeconsT
-    thetaMat=[cos(piAngle),sin(piAngle); -1*sin(piAngle),cos(piAngle)];
-    if(sin(piAngle)<0)
-        thetaMat=thetaMat*-1;
+    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% hdy %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%  
+    if scheduledID(indexSensingV)==6
+        fprintf("ddd");
     end
-
-    sf=0; %subframe
-    sc=0; %subchannel
-    p2rRBid=0;
-    for i=1:NbeaconsT %unit is millisecond
-        tPos=nPos + nSpeed*i*phyParams.TTI; %%%%%%%%%%%%%%%%%%%%%%%%%%%
-        dddd=nPos + nSpeed*i*phyParams.TTI;
-        tPos=thetaMat * tPos;
-
-        numOfResourceInOneLane=floor(Nbeacons/numOflane);
-        lengthOneSegmant=gamma_/numOfResourceInOneLane;
-        tx=floor(mod(tPos(1),gamma_) /lengthOneSegmant);
-        ty=floor(mod(tPos(2),roadWidth*numOflane)/roadWidth);
-        p2rRBid=numOflane*tx+ty;
-        sf=mod(p2rRBid,betta_);
-        sc=floor(p2rRBid/betta_);
-        
-%         fprintf("\n v(%d) t(%f+%d=%f) ang(%d) pos(%f,%f => %f,%f) txty=(%f,%f) RBid=%d sf,sc=(%f,%f)----------------------------------------", ...
-%             scheduledID(indexSensingV), timeManagement.elapsedTime_TTIs,i,timeManagement.elapsedTime_TTIs+i, ...
-%             nAngle,dddd(1), dddd(2), tPos(1),tPos(2), ...
-%             tx,ty,p2rRBid,sf,sc);
-                
-        futureT = mod(timeManagement.elapsedTime_TTIs+i-1,betta_)+1; 
-        if abs(futureT - (sf+1))<0.000001
+    p2rRBid=hdyCalc([positionManagement.XvehicleReal(scheduledID(indexSensingV)); positionManagement.YvehicleReal(scheduledID(indexSensingV))], ...
+        simValues.angle(scheduledID(indexSensingV)), ...
+        simValues.v(scheduledID(indexSensingV)), ...
+        scheduledID(indexSensingV), ...
+        4, ...
+        6, ...
+        1000, ...
+        appParams.NbeaconsT, ...
+        appParams.NbeaconsT, ...
+        phyParams.TTI, ...
+        appParams.NbeaconsT, ...
+        appParams.NbeaconsF, ...
+        timeManagement.elapsedTime_TTIs,...
+        timeManagement.elapsedTime_TTIs, ...
+        0,0,0,0);
+    simValues.spsORp2r(scheduledID(indexSensingV))=1;
+    simValues.whenSelectRrc(scheduledID(indexSensingV))= timeManagement.elapsedTime_TTIs;
+    
+    
+    
+%     %position information
+%     nPos=[positionManagement.XvehicleReal(scheduledID(indexSensingV)); ...
+%         positionManagement.YvehicleReal(scheduledID(indexSensingV))];
+%     nAngle=simValues.angle(scheduledID(indexSensingV));  %degree
+%     piAngle=mod(90-nAngle,360);
+%     piAngle=(piAngle/180)*pi; %radian
+%     
+%     nSpeed=simValues.v(scheduledID(indexSensingV)); %m/s
+%     nSpeedVector=[cos(piAngle);sin(piAngle)] *nSpeed;
+% 
+% %     piAngle=0;
+%     
+%     % config parameter
+%     roadWidth=4; %meter
+%     numOflane=NbeaconsF;  
+%     gamma_=1000;%meter
+%     betta_=NbeaconsT; %==NbeconsT
+%     thetaMat=[cos(piAngle),sin(piAngle); -1*sin(piAngle),cos(piAngle)];
+%     if(sin(piAngle)<0)
+%         thetaMat=thetaMat*-1;
+%     end
+% 
+%     sf=0; %subframe
+%     sc=0; %subchannel
+%     p2rRBid=0;
+%     for i=1:NbeaconsT %unit is millisecond
+%         tPos=nPos + nSpeedVector*i*phyParams.TTI; %%%%%%%%%%%%%%%%%%%%%%%%%%%
+%         dddd=nPos + nSpeedVector*i*phyParams.TTI;
+%         tPos=thetaMat * tPos;
+% 
+%         numOfResourceInOneLane=floor(Nbeacons/numOflane);
+%         lengthOneSegmant=gamma_/numOfResourceInOneLane;
+%         tx=floor(mod(tPos(1),gamma_) /lengthOneSegmant);
+%         ty=floor(mod(tPos(2),roadWidth*numOflane)/roadWidth);
+%         p2rRBid=numOflane*tx+ty;
+%         sf=mod(p2rRBid,betta_);
+%         sc=floor(p2rRBid/betta_);
+%         
+% %         fprintf("\n v(%d) t(%f+%d=%f) ang(%d) pos(%f,%f => %f,%f) txty=(%f,%f) RBid=%d sf,sc=(%f,%f)----------------------------------------", ...
+% %             scheduledID(indexSensingV), timeManagement.elapsedTime_TTIs,i,timeManagement.elapsedTime_TTIs+i, ...
+% %             nAngle,dddd(1), dddd(2), tPos(1),tPos(2), ...
+% %             tx,ty,p2rRBid,sf,sc);
+%                 
+%         futureT = mod(timeManagement.elapsedTime_TTIs+i-1,betta_)+1; 
+%         if abs(futureT - (sf+1))<0.000001
+%             if scheduledID(indexSensingV)==83 || scheduledID(indexSensingV)==95
 %             fprintf("\n v(%d)\tt(%f+%d=%f)\tang(%d)\tpos(%f,%f => %f,%f)\ttxty=(%f,%f)\tRBid=%d\tsf,sc=(%f,%f)----------------------------------------", ...
 %             scheduledID(indexSensingV), timeManagement.elapsedTime_TTIs,i,timeManagement.elapsedTime_TTIs+i, ...
 %             nAngle,dddd(1), dddd(2), tPos(1),tPos(2), ...
 %             tx,ty,p2rRBid,sf,sc);
-            break;
-        end
-    end
+%             end
+%             simValues.spsORp2r(scheduledID(indexSensingV))=1;
+%             simValues.whenSelectRrc(scheduledID(indexSensingV))= timeManagement.elapsedTime_TTIs;
+%             break;
+%         end
+%     end
 
     %check if the resource(sf,sc) is possible
     a=sensingMatrixPerm < max(phyParams.P_ERP_MHz_CV2X); % find possible resource (not INF or smaller than max_phyParams.P_ERP_MHz_CV2X)
@@ -352,8 +382,8 @@ for indexSensingV = 1:Nscheduled
     % check if p2rRBid is possible resource
 
     BR=0;
-    if ~isempty(intersect(possibleBR,[p2rRBid+1]))
-        BR=p2rRBid+1; % RBid is start from 1
+    if ~isempty(intersect(possibleBR,[p2rRBid]))
+        BR=p2rRBid;
         stationManagement.BRid(scheduledID(indexSensingV),1)=BR;
         %fprintf("\n---v(%d) t(%f) RBid(%f) sf,sc=(%f,%f)-----------------------\n",scheduledID(indexSensingV),timeManagement.elapsedTime_TTIs, p2rRBid,sf,sc);   
         %fprintf("\n------v=%f %f  currentT(%f) p2rRBid=%f, sf,sc=(%f,%f)\n",scheduledID(indexSensingV),timeManagement.elapsedTime_TTIs, currentT,p2rRBid,sf,sc);   
@@ -362,9 +392,7 @@ for indexSensingV = 1:Nscheduled
 %         printDebugReallocation(timeManagement.timeNow,scheduledID(indexSensingV),positionManagement.XvehicleReal(stationManagement.activeIDs==scheduledID(indexSensingV)),'reall',BR,outParams);
 
     else
-        %fprintf("\n======currentT(%f)\n", currentT);   
-        
-        % Reorder bestBRid matrix
+            % Reorder bestBRid matrix
         bestBR = rpMatrix(bestBRPerm);
 
         % 5G procedure mode2 which admits all resources that are not HD or
@@ -388,6 +416,13 @@ for indexSensingV = 1:Nscheduled
         printDebugReallocation(timeManagement.timeNow,scheduledID(indexSensingV),positionManagement.XvehicleReal(stationManagement.activeIDs==scheduledID(indexSensingV)),'reall',BR,outParams);
 
         stationManagement.BRid(scheduledID(indexSensingV),1)=BR;
+        
+        %hdy
+        fprintf("\n___________vid(%d) t(%f) BR(%d)---------------------------------------------\n", ...
+        scheduledID(indexSensingV),timeManagement.elapsedTime_TTIs, BR);  
+        simValues.spsORp2r(scheduledID(indexSensingV))=0;
+        simValues.whenSelectRrc(scheduledID(indexSensingV))= timeManagement.elapsedTime_TTIs;
+        
         Nreassign = Nreassign + 1;
     end
 

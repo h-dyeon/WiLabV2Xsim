@@ -1,6 +1,5 @@
-function [BRid, Nreassign] = BRreassignmentRandom_P2R(T1,T2,IDvehicle,simParams,timeManagement,sinrManagement,stationManagement,phyParams,appParams,positionManagement,simValues) % hdy add ,positionManagement,simValues);
+function [BRid, Nreassign,simValues] = BRreassignmentRandom_P2R(T1,T2,IDvehicle,simParams,timeManagement,sinrManagement,stationManagement,phyParams,appParams,positionManagement,simValues) % hdy add ,positionManagement,simValues);
 % Benchmark Algorithm 101 (RANDOM ALLOCATION)
-
 % T1 and T2 set the time budget
 if T1==-1
     T1=1;
@@ -15,6 +14,9 @@ Nvehicles = length(IDvehicle(:,1));   % Number of vehicles
 % This part considers various limitations
 BRid = zeros(length(IDvehicle(:,1)),1);
 % A cycle over the vehicles is needed
+
+tmp=0;
+
 for idV=1:Nvehicles
     if stationManagement.vehicleState(IDvehicle(idV))~=100
         continue;
@@ -24,60 +26,91 @@ for idV=1:Nvehicles
     while BRid(idV)==0
         
         if status % at first select resource by P2R
-                %position information
-                nPos=[positionManagement.XvehicleReal(IDvehicle(idV)); ...
-                    positionManagement.YvehicleReal(IDvehicle(idV))];
-                nSpeed=simValues.v(IDvehicle(idV)); %m/s
-                nAngle=simValues.angle(IDvehicle(idV));  %degree
-                piAngle=mod(90-nAngle,360);
-                piAngle=(piAngle/180)*pi; %radian
-
-                % config parameter
-                roadWidth=4; %meter
-                numOflane=appParams.NbeaconsF;  
-                gamma_=1000;%meter
-                betta_=appParams.NbeaconsT; %==NbeconsT
-                thetaMat=[cos(piAngle),sin(piAngle); -1*sin(piAngle),cos(piAngle)];
-                if(sin(piAngle)<0)
-                    thetaMat=thetaMat*-1;
-                end
-
-                sf=0; %subframe
-                sc=0; %subchannel
-                p2rRBid=0;
-                for i=1:appParams.NbeaconsT %unit is millisecond
-                    tPos=nPos + nSpeed*i*phyParams.TTI; %%%%%%%%%%%%%%%%%%%%%%%%%%%
-                    dddd=nPos + nSpeed*i*phyParams.TTI;
-                    tPos=thetaMat * tPos;
-
-                    numOfResourceInOneLane=floor(appParams.Nbeacons/numOflane);
-                    lengthOneSegmant=gamma_/numOfResourceInOneLane;
-                    tx=floor(mod(tPos(1),gamma_) /lengthOneSegmant);
-                    ty=floor(mod(tPos(2),roadWidth*numOflane)/roadWidth);
-                    p2rRBid=numOflane*tx+ty;
-                    sf=mod(p2rRBid,betta_);
-                    sc=floor(p2rRBid/betta_);
-
-            %         fprintf("\n v(%d) t(%f+%d=%f) ang(%d) pos(%f,%f => %f,%f) txty=(%f,%f) RBid=%d sf,sc=(%f,%f)----------------------------------------", ...
-            %             scheduledID(indexSensingV), timeManagement.elapsedTime_TTIs,i,timeManagement.elapsedTime_TTIs+i, ...
-            %             nAngle,dddd(1), dddd(2), tPos(1),tPos(2), ...
-            %             tx,ty,p2rRBid,sf,sc);
-
-                    subframeLastPacket = mod(ceil(timeManagement.timeLastPacket(IDvehicle(idV))/phyParams.TTI)-1,(appParams.NbeaconsT))+1;
-                    futureT = mod(subframeLastPacket+i-1,betta_)+1; 
-                    if abs(futureT - (sf+1))<0.000001
-            %             fprintf("\n v(%d)\tt(%f+%d=%f)\tang(%d)\tpos(%f,%f => %f,%f)\ttxty=(%f,%f)\tRBid=%d\tsf,sc=(%f,%f)----------------------------------------", ...
-            %             scheduledID(indexSensingV), timeManagement.elapsedTime_TTIs,i,timeManagement.elapsedTime_TTIs+i, ...
-            %             nAngle,dddd(1), dddd(2), tPos(1),tPos(2), ...
-            %             tx,ty,p2rRBid,sf,sc);
-                        BRid(idV)=p2rRBid+1;
-                        break;
-                    end
-                end
-            status=false
+            
+            p2rRBid=hdyCalc([positionManagement.XvehicleReal(IDvehicle(idV)); positionManagement.YvehicleReal(IDvehicle(idV))], ...
+                simValues.angle(IDvehicle(idV)), ...
+                simValues.v(IDvehicle(idV)), ...
+                IDvehicle(idV), ...
+                4, ...
+                6, ...
+                1000, ...
+                appParams.NbeaconsT, ...
+                appParams.NbeaconsT, ...
+                phyParams.TTI, ...
+                appParams.NbeaconsT, ...
+                appParams.NbeaconsF, ...
+                0,...
+                0, ... #  mod(ceil(timeManagement.timeLastPacket(IDvehicle(idV))/phyParams.TTI)-1,(appParams.NbeaconsT))+1, ...
+                0,0,0,0);
+                
+            simValues.spsORp2r(IDvehicle(idV))=1;
+            simValues.whenSelectRrc(IDvehicle(idV))= 0;
+            BRid(idV)=p2rRBid;
+            status=false;
+            
+%                 %position information
+%                 nPos=[positionManagement.XvehicleReal(IDvehicle(idV)); ...
+%                     positionManagement.YvehicleReal(IDvehicle(idV))];
+%                 nAngle=simValues.angle(IDvehicle(idV));  %degree
+%                 piAngle=mod(90-nAngle,360);
+%                 piAngle=(piAngle/180)*pi; %radian
+%                 nSpeed=simValues.v(IDvehicle(idV)); %m/s
+%                 nSpeedVector=[cos(piAngle);sin(piAngle)] *nSpeed;
+% 
+%                 % config parameter
+%                 roadWidth=4; %meter
+%                 numOflane=6;%appParams.NbeaconsF;  
+%                 gamma_=1000;%meter
+%                 betta_=appParams.NbeaconsT; %==NbeconsT
+%                 thetaMat=[cos(piAngle),sin(piAngle); -1*sin(piAngle),cos(piAngle)];
+%                 if(sin(piAngle)<0)
+%                     thetaMat=thetaMat*-1;
+%                 end
+% 
+%                 sf=0; %subframe
+%                 sc=0; %subchannel
+%                 p2rRBid=0;
+%                 for i=1:appParams.NbeaconsT %unit is millisecond
+%                     tPos=nPos + nSpeedVector*i*phyParams.TTI; %%%%%%%%%%%%%%%%%%%%%%%%%%%
+%                     dddd=nPos + nSpeedVector*i*phyParams.TTI;
+%                     tPos=thetaMat * tPos;
+% 
+%                     numOfResourceInOneLane=floor(appParams.Nbeacons/numOflane);
+%                     lengthOneSegmant=gamma_/numOfResourceInOneLane;
+%                     tx=floor(mod(tPos(1),gamma_) /lengthOneSegmant);
+%                     ty=floor(mod(tPos(2),roadWidth*numOflane)/roadWidth);
+%                     p2rRBid=numOflane*tx+ty;
+%                     sf=mod(p2rRBid,betta_);
+%                     sc=floor(p2rRBid/betta_);
+% 
+%             %         fprintf("\n v(%d) t(%f+%d=%f) ang(%d) pos(%f,%f => %f,%f) txty=(%f,%f) RBid=%d sf,sc=(%f,%f)----------------------------------------", ...
+%             %             scheduledID(indexSensingV), timeManagement.elapsedTime_TTIs,i,timeManagement.elapsedTime_TTIs+i, ...
+%             %             nAngle,dddd(1), dddd(2), tPos(1),tPos(2), ...
+%             %             tx,ty,p2rRBid,sf,sc);
+% 
+%                     subframeLastPacket = mod(ceil(timeManagement.timeLastPacket(IDvehicle(idV))/phyParams.TTI)-1,(appParams.NbeaconsT))+1;
+%                     futureT = mod(subframeLastPacket+i-1,betta_)+1; 
+%                     if abs(futureT - (sf+1))<0.000001
+%                         
+%                          if IDvehicle(idV)==83 || IDvehicle(idV)==95
+%                             fprintf("\n v(%d)\tt(%f+%d=%f)\tang(%d)\tpos(%f,%f => %f,%f=> %f,%f)\ttxty=(%f,%f)\tRBid=%d\tsf,sc=(%f,%f)------------------------------------------------", ...
+%                             IDvehicle(idV), subframeLastPacket,i,futureT, ...
+%                             nAngle,nPos(1),nPos(2),dddd(1), dddd(2),tPos(1),tPos(2), ...
+%                             tx,ty,p2rRBid,sf,sc);
+%                          end
+%                         simValues.spsORp2r(IDvehicle(idV))=1;
+%                         simValues.whenSelectRrc(IDvehicle(idV))= 0;
+%                         BRid(idV)=p2rRBid+1;
+%                         break;
+%                     end
+%                 end
+%             status=false;
         else % select with random
             % A random BR is selected
+            simValues.spsORp2r(IDvehicle(idV))=0;
+            simValues.whenSelectRrc(IDvehicle(idV))= 0;
             BRid(idV) = randi(appParams.Nbeacons,1,1);
+            tmp=tmp+1;
         end
         
         

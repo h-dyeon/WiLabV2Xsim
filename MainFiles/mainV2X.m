@@ -1,9 +1,14 @@
 function [simValues,outputValues,appParams,simParams,phyParams,sinrManagement,outParams,stationManagement] = mainV2X(appParams,simParams,phyParams,outParams,simValues,outputValues,positionManagement)
 % Core function where events are sorted and executed
 
+%hdy for debuging
+simValues.spsORp2r = Inf * ones(simValues.maxID,1);
+simValues.whenSelectRrc = Inf * ones(simValues.maxID,1);
+
 %% Initialization
 [appParams,simParams,phyParams,outParams,simValues,outputValues,...
     sinrManagement,timeManagement,positionManagement,stationManagement] = mainInit(appParams,simParams,phyParams,outParams,simValues,outputValues,positionManagement);
+
 
 % The simulation starts at time '0'
 timeManagement.timeNow = 0;
@@ -161,7 +166,7 @@ while timeManagement.timeNow < simParams.simulationTime
             %fprintf('Starts\n');
             
             [sinrManagement,stationManagement,timeManagement,outputValues] = ...
-                mainCV2XttiStarts(appParams,phyParams,timeManagement,sinrManagement,stationManagement,simParams,simValues,outParams,outputValues);
+                mainCV2XttiStarts(appParams,phyParams,timeManagement,sinrManagement,stationManagement,simParams,simValues,outParams,outputValues,positionManagement); %hdy add positionManagement
 
             % DEBUG TX-RX
             %if isfield(stationManagement,'IDvehicleTXLTE') && ~isempty(stationManagement.transmittingIDsLTE)

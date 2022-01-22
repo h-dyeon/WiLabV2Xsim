@@ -408,7 +408,13 @@ if sum(stationManagement.vehicleState(stationManagement.activeIDs)==100)>0
 
         % Initialize reselection counter (BRAlgorithm=18)
         stationManagement.resReselectionCounterCV2X = Inf*ones(simValues.maxID,1);
-        stationManagement.resReselectionCounterCV2X(stationManagement.activeIDs) = (simParams.minRandValueMode4-1) + randi((simParams.maxRandValueMode4-simParams.minRandValueMode4)+1,1,length(stationManagement.activeIDs));
+        % before = stationManagement.resReselectionCounterCV2X(stationManagement.activeIDs) = (simParams.minRandValueMode4-1) + randi((simParams.maxRandValueMode4-simParams.minRandValueMode4)+1,1,length(stationManagement.activeIDs));
+        tmp=(simParams.minRandValueMode4-1) + randi((simParams.maxRandValueMode4-simParams.minRandValueMode4)+1,1,length(stationManagement.activeIDs));
+        tmp2=zeros(size(tmp));
+        stationManagement.resReselectionCounterCV2X(stationManagement.activeIDs) = tmp2;
+        % hdy set random counter to zero
+        
+        
         % COMMENTED: Set value 0 to vehicles that are blocked
         % stationManagement.resReselectionCounterCV2X(stationManagement.BRid==-1)=0;
 
@@ -423,7 +429,7 @@ if sum(stationManagement.vehicleState(stationManagement.activeIDs)==100)>0
             % From v5.4.16, when HARQ is active, n random
             % resources are selected, one per each replica 
             if simParams.enableP2R
-                [stationManagement.BRid(stationManagement.activeIDs,j),~] = BRreassignmentRandom_P2R(simParams.T1autonomousModeTTIs,simParams.T2autonomousModeTTIs,stationManagement.activeIDs,simParams,timeManagement,sinrManagement,stationManagement,phyParams,appParams,positionManagement,simValues);
+                [stationManagement.BRid(stationManagement.activeIDs,j),~,simValues] = BRreassignmentRandom_P2R(simParams.T1autonomousModeTTIs,simParams.T2autonomousModeTTIs,stationManagement.activeIDs,simParams,timeManagement,sinrManagement,stationManagement,phyParams,appParams,positionManagement,simValues);
             else
                 [stationManagement.BRid(stationManagement.activeIDs,j),~] = BRreassignmentRandom(simParams.T1autonomousModeTTIs,simParams.T2autonomousModeTTIs,stationManagement.activeIDs,simParams,timeManagement,sinrManagement,stationManagement,phyParams,appParams);
             end

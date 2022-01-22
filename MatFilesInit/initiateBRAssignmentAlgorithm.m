@@ -210,6 +210,10 @@ if simParams.BRAlgorithm == 18 || simParams.BRAlgorithm == 101
     simParams.T1autonomousModeTTIs = simParams.T1autonomousMode*(2^phyParams.muNumerology);    % T1 in terms of TTIs
     simParams.T2autonomousModeTTIs = simParams.T2autonomousMode*(2^phyParams.muNumerology);    % T2 in terms of TTIs
    
+    
+   %hdy for init p2rmode
+   simParams.T1autonomousModeTTIs = 1;    % T1 in terms of TTIs
+   simParams.T2autonomousModeTTIs = Tbeacon*1000;
 
         
 end

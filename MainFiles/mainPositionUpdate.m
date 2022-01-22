@@ -11,7 +11,7 @@ else
     %hdy
     % before : [positionManagement.XvehicleReal,positionManagement.YvehicleReal,stationManagement.activeIDs,indexNewVehicles,indexOldVehicles,indexOldVehiclesToOld,stationManagement.activeIDsExit,simValues.v] = updatePositionFile(round(timeManagement.timeNextPosUpdate*100)/100,simValues.dataTrace,stationManagement.activeIDs,positionManagement.XvehicleReal,positionManagement.YvehicleReal,round(timeManagement.timeNextPosUpdate*100)/100-simParams.positionTimeResolution,simValues,outParams);
     % after
-    [positionManagement.XvehicleReal,positionManagement.YvehicleReal,stationManagement.activeIDs, simValues.v,simValues.angle,indexNewVehicles,indexOldVehicles,indexOldVehiclesToOld,stationManagement.activeIDsExit] = updatePositionFile(round(timeManagement.timeNextPosUpdate*100)/100,simValues.dataTrace,stationManagement.activeIDs,positionManagement.XvehicleReal,positionManagement.YvehicleReal,round(timeManagement.timeNextPosUpdate*100)/100-simParams.positionTimeResolution,simValues,outParams); %hdy
+    [positionManagement.XvehicleReal,positionManagement.YvehicleReal,stationManagement.activeIDs, simValues.v,simValues.angle,indexNewVehicles,indexOldVehicles,indexOldVehiclesToOld,stationManagement.activeIDsExit] = updatePositionFile(round(timeManagement.timeNextPosUpdate*1000)/1000,simValues.dataTrace,stationManagement.activeIDs,positionManagement.XvehicleReal,positionManagement.YvehicleReal,round(timeManagement.timeNextPosUpdate*100)/100-simParams.positionTimeResolution,simValues,outParams); %hdy
     
     %% ONLY LTE
     if sum(stationManagement.vehicleState(stationManagement.activeIDs)==100)>0
