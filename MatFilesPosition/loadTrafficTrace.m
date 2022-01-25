@@ -58,6 +58,17 @@ if simParams.simulationTime~=-1
     dataIn = dataIn(dataIn(:,1)<=duration,:);
 end
 
+
+%hdy for check road 
+for i=1:length(dataIn(:,4))
+    if dataIn(i,4)==90 || dataIn(i,4)==94 ||dataIn(i,4)==98
+        dataIn(i,4)=dataIn(i,4)-4;
+    end
+end
+
+
+
+
 % The input time interval is derived from the input file
 deltaT = max(dataIn(2:end,1)-dataIn(1:end-1,1));
 

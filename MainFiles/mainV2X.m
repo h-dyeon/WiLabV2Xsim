@@ -4,6 +4,8 @@ function [simValues,outputValues,appParams,simParams,phyParams,sinrManagement,ou
 %hdy for debuging
 simValues.spsORp2r = Inf * ones(simValues.maxID,1);
 simValues.whenSelectRrc = Inf * ones(simValues.maxID,1);
+simValues.hdy_error_count=zeros(4,1);
+simValues.hdy_error_table=zeros(0,7); %시간, 차id, BRid, x,y, BRid계산시점, reselection counter순으로 기록
 
 %% Initialization
 [appParams,simParams,phyParams,outParams,simValues,outputValues,...

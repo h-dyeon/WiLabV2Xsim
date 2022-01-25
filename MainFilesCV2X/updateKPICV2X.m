@@ -10,6 +10,76 @@ outputValues.cv2xTransmissionsFirst = outputValues.cv2xTransmissionsFirst + sum(
 % From v 5.4.14
 [fateRxListRawMax,stationManagement,sinrManagement] = elaborateFateRxCV2X(timeManagement,activeIDsTXLTE,indexInActiveIDsOnlyLTE,neighborsID_LTE,sinrManagement,stationManagement,positionManagement,appParams,phyParams);
 
+% hdy check where is error 
+if length(activeIDsTXLTE)>1
+    groups=zeros(length(activeIDsTXLTE),2); %  brid,tx id
+    for i =1:length(activeIDsTXLTE)
+        groups(i,1)=stationManagement.BRid(activeIDsTXLTE(i));
+        groups(i,2)=activeIDsTXLTE(i);
+    end
+    BRids=unique(groups(:,1));
+    
+    for br = 1:length(BRids)
+        cars=[];
+        for k=1:length(groups(:,1))
+            if groups(k,1)==BRids(br)
+                cars=[cars;groups(k,2)];
+            end
+        end
+%         currentT = mod(timeManagement.elapsedTime_TTIs-1,NbeaconsT)+1; 
+        if length(cars)>1
+            visited=zeros(length(cars),1);
+            for i =1:length(cars)-1
+                for j=i+1:length(cars)
+                    if positionManagement.distanceReal(cars(i),cars(j))<1200
+                        
+                        status=-1; %check  what is problem
+                        if simParams.enableP2R==true && (simValues.spsORp2r(cars(i))==0 || simValues.spsORp2r(cars(j))==0)
+                            status=2; % sps resource
+                        elseif positionManagement.distanceReal(cars(i),cars(j))< 35 %(1200*6/appParams.Nbeacons)
+                            status=1; % same partition
+                        elseif positionManagement.distanceReal(cars(i),cars(j)) >1040
+                            status=3; % far partition
+                        else
+                            status=4; % road condition
+%                             positionManagement.distanceReal(cars(i),cars(j));
+                        end
+                        simValues.hdy_error_count(status)=simValues.hdy_error_count(status)+1;
+                            
+%                         if visited(i)==0
+                             simValues.hdy_error_table=[simValues.hdy_error_table; ...
+                               [timeManagement.elapsedTime_TTIs/1000, ...
+                                cars(i),...
+                                BRids(br), ...
+                                positionManagement.XvehicleReal(cars(i)), ...
+                                positionManagement.YvehicleReal(cars(i)), ...
+                                simValues.whenSelectRrc(cars(i)), ...
+                                stationManagement.resReselectionCounterCV2X(cars(i)), ...
+                                status, ...
+                                simValues.spsORp2r(cars(i))]];
+                            visited(i)=1;
+%                         end
+%                         if visited(j)==0
+                             simValues.hdy_error_table=[simValues.hdy_error_table; ...
+                               [timeManagement.elapsedTime_TTIs/1000, ...
+                                cars(j),...
+                                BRids(br), ...
+                                positionManagement.XvehicleReal(cars(j)), ...
+                                positionManagement.YvehicleReal(cars(j)), ...
+                                simValues.whenSelectRrc(cars(j)), ...
+                                stationManagement.resReselectionCounterCV2X(cars(j)), ...
+                                status, ...
+                                simValues.spsORp2r(cars(j))]];
+                            visited(j)=1;
+%                         end
+                    end
+                end
+            end
+        end
+    end
+ end
+
+
 % Error detection (within each value of Raw)
 for iPhyRaw=1:length(phyParams.Raw)
     

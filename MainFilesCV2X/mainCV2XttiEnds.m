@@ -111,7 +111,7 @@ if simParams.BRAlgorithm==18
     
     % hdy Position to Resource
     if simParams.enableP2R
-        [timeManagement,stationManagement,sinrManagement,Nreassign] = ...
+        [timeManagement,stationManagement,sinrManagement,Nreassign,simValues] = ...
             BRreassignment3GPPautonomous_P2R(timeManagement,stationManagement,positionManagement,sinrManagement,simParams,phyParams,appParams,outParams,simValues); % hdy add param : simValues
     else  
         % BRs reassignment (3GPP MODE 4)     

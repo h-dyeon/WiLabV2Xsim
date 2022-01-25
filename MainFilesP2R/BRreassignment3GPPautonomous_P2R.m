@@ -1,4 +1,4 @@
-function [timeManagement,stationManagement,sinrManagement,Nreassign] = BRreassignment3GPPautonomous_P2R(timeManagement,stationManagement,positionManagement,sinrManagement,simParams,phyParams,appParams,outParams,simValues) % hdy add param : simValues
+function [timeManagement,stationManagement,sinrManagement,Nreassign,simValues] = BRreassignment3GPPautonomous_P2R(timeManagement,stationManagement,positionManagement,sinrManagement,simParams,phyParams,appParams,outParams,simValues) % hdy add param : simValues
 % Sensing-based autonomous resource reselection algorithm (3GPP MODE 4)
 % as from 3GPP TS 36.321 and TS 36.213
 % Resources are allocated for a Resource Reselection Period (SPS)
@@ -76,6 +76,7 @@ for j=1:phyParams.cv2xNumberOfReplicasMax
     else
         D = false;
     end
+    
     allConditionsMet(:,j) = A & B & (C | D) ;
     %scheduledID_PHYmatrix(:,j) = activeIDsCV2X(timeManagement.timeLastPacket(activeIDsCV2X) > timeManagement.timeNow-phyParams.Tsf-1e-8 ...
     %    & stationManagement.cv2xNumberOfReplicas(activeIDsCV2X) >= j ...
@@ -85,9 +86,43 @@ end
 % A means one packet was generated in this slot
 hasNewPacketThisTbeacon = (timeManagement.timeLastPacket(activeIDsCV2X) > (timeManagement.timeNow-phyParams.TTI-1e-8));
 
+ %hdy compare current position with BRid 
+hello=[];
+for i = 1: length(hasNewPacketThisTbeacon)
+    if hasNewPacketThisTbeacon(i)>0
+    nowC=i;
+    tmpRBid=hdyCalc([positionManagement.XvehicleReal(nowC); positionManagement.YvehicleReal(nowC)], ...
+        simValues.angle(nowC), ...
+        simValues.v(nowC), ...
+        nowC, ...
+        4, ...
+        6, ...
+        1000, ...
+        appParams.NbeaconsT, ...
+        1000000, ...
+        phyParams.TTI, ...
+        appParams.NbeaconsT, ...
+        appParams.NbeaconsF, ...
+        timeManagement.elapsedTime_TTIs,...
+        timeManagement.elapsedTime_TTIs, ...
+        0,0,0,0);
+    if tmpRBid~=-1 && tmpRBid ~= stationManagement.BRid(nowC,1) && simValues.spsORp2r(nowC)==1
+        stationManagement.resReselectionCounterCV2X(nowC)=0;
+        hello=[hello;nowC];
+         fprintf("\n_____recalculate_____vID(%d), BRid+1(%d <-%d)-------------------------------------\n", ...
+                nowC,...
+                tmpRBid,stationManagement.BRid(nowC,1));  
+    end
+    end
+end
+
+    
+
+
 % The operand 'any' implies that if any replica is outside T1, T2, then a
 % reallocation is performed
 scheduledID_PHY = activeIDsCV2X(hasNewPacketThisTbeacon & any(allConditionsMet,2));
+scheduledID_PHY=union(scheduledID_PHY, hello);
 scheduledID_PHY(timeManagement.timeLastPacket(scheduledID_PHY)<0) = [];
 
 % Following line for debug purposes - allows to remove PHY commanded reallocations
@@ -166,7 +201,7 @@ scheduledID_MAC = activeIDsCV2X( hasNewPacketThisTbeacon ...
 % end
 % fprintf(fid,'\n');
 % fclose(fid);
-
+       
 %% For the nodes with the counter reaching zero or with enforced reselection restart the reselection counter
 % Calculate new resReselectionCounter for scheduledID
 needReselectionCounterRestart = union(scheduledID_PHY,scheduledID_MAC);
@@ -312,7 +347,7 @@ for indexSensingV = 1:Nscheduled
         timeManagement.elapsedTime_TTIs, ...
         0,0,0,0);
     simValues.spsORp2r(scheduledID(indexSensingV))=1;
-    simValues.whenSelectRrc(scheduledID(indexSensingV))= timeManagement.elapsedTime_TTIs;
+    simValues.whenSelectRrc(scheduledID(indexSensingV))= timeManagement.elapsedTime_TTIs/1000;
     
     
     
@@ -421,7 +456,8 @@ for indexSensingV = 1:Nscheduled
         fprintf("\n___________vid(%d) t(%f) BR(%d)---------------------------------------------\n", ...
         scheduledID(indexSensingV),timeManagement.elapsedTime_TTIs, BR);  
         simValues.spsORp2r(scheduledID(indexSensingV))=0;
-        simValues.whenSelectRrc(scheduledID(indexSensingV))= timeManagement.elapsedTime_TTIs;
+        simValues.whenSelectRrc(scheduledID(indexSensingV))= timeManagement.elapsedTime_TTIs/1000;
+        %stationManagement.resReselectionCounterCV2X(scheduledID(indexSensingV))=1;
         
         Nreassign = Nreassign + 1;
     end
